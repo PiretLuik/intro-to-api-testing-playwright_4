@@ -1,0 +1,101 @@
+import { expect, test } from '@playwright/test'
+
+import { StatusCodes } from 'http-status-codes'
+import { OrderDto } from './order-dto';
+
+
+test('get order with correct id should receive code 200', async ({ request }) => {
+  // Build and send a GET request to the server
+  const response = await request.get('https://backend.tallinn-learning.ee/test-orders/1')
+  // Log the response status, body and headers
+  console.log('response body:', await response.json())
+  console.log('response headers:', response.headers())
+  // Check if the response status is 200
+  expect(response.status()).toBe(200)
+})
+
+test('post order with correct data should receive code 201', async ({ request }) => {
+  const requestBody = OrderDto.createOrderWithRandomData()
+  /*const requestBody = {
+    status: 'OPEN',
+    courierId: 0,
+    customerName: 'string',
+    customerPhone: 'string',
+    comment: 'string',
+    id: 0,
+  }*/
+  // Send a POST request to the server
+
+  const response = await request.post('https://backend.tallinn-learning.ee/test-orders', {
+    data: requestBody,
+  })
+  // Log the response status and body
+  console.log('response status:', response.status())
+  console.log('response body:', await response.json())
+  expect(response.status()).toBe(StatusCodes.OK)
+
+  const responseBody = await response.json()
+  expect.soft(responseBody.status).toBe('OPEN')
+  expect.soft(responseBody.courierId).toBeDefined()
+  expect.soft(responseBody.customerName).toBeDefined()
+})
+test('post order with missing fields should return 400', async ({ request }) => {
+  const requestBody = {
+    status: 'OPEN', // Väli olemas
+    courierId: 0,   // Väli olemas
+    // Puudu: customerName, customerPhone, comment, id
+  }
+  const response = await request.post('https://backend.tallinn-learning.ee/test-orders', {
+    data: requestBody,
+  })
+  console.log('response status:', response.status())
+  expect(response.status()).toBe(400)
+})
+
+test('post order with unexpected fields should return 400', async ({ request }) => {
+  const requestBody = {
+    status: 'OPEN',
+    courierId: 1,
+    customerName: 'John Doe',
+    customerPhone: '+123456789',
+    comment: 'Urgent order',
+    id: 1,
+    unexpectedField: 'This should not be here', // Ootamatu väli
+  }
+  const response = await request.post('https://backend.tallinn-learning.ee/test-orders', {
+    data: requestBody,
+  })
+  console.log('response status:', response.status())
+  expect(response.status()).toBe(400) // Või 200, kui server lihtsalt ignoreerib lisavälja
+})
+test('post order with invalid values should return 400', async ({ request }) => {
+  const requestBody = {
+    status: 'OPEN',
+    courierId: -1, // Negatiivne ID, peaks ebaõnnestuma
+    customerName: '',
+    customerPhone: '',
+    comment: 'Test order',
+    id: -10,
+  }
+  const response = await request.post('https://backend.tallinn-learning.ee/test-orders', {
+    data: requestBody,
+  })
+  console.log('response status:', response.status())
+  expect(response.status()).toBe(400)
+})
+
+
+
+test('get invalid order ID should return 400', async ({ request }) => {
+  const response = await request.get('https://backend.tallinn-learning.ee/test-orders/9999')
+  console.log('response status:', response.status())
+  expect(response.status()).toBe(400) // Kontrollime, kas server tagastab "Bad Request"
+})
+
+test('get non-existent order should return 400', async ({ request }) => {
+  const response = await request.get('https://backend.tallinn-learning.ee/test-orders/1000000')
+  console.log('response status (non-existent ID):', response.status())
+  expect(response.status()).toBe(400) // Kontrollime serveri käitumist
+})
+
+
