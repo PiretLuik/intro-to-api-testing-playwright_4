@@ -22,7 +22,6 @@ export class OrderDto {
     this.id = id
   }
 
-  // add a method to create a new instance with random data
   static createOrderWithRandomData(): OrderDto {
     return new OrderDto(
       'OPEN',
