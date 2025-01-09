@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const test_1 = require("@playwright/test");
 const http_status_codes_1 = require("http-status-codes");
-const order_dto_1 = require("./Dto/order-dto");
+const order_dto_1 = require("./order-dto");
 (0, test_1.test)('get order with correct id should receive code 200', async ({ request }) => {
     // Build and send a GET request to the server
     const response = await request.get('https://backend.tallinn-learning.ee/test-orders/1');
