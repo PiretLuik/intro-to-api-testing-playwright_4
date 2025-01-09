@@ -1,8 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 import { StatusCodes } from 'http-status-codes'
-import { OrderDto } from './order-dto';
-
+import { OrderDto } from './order-dto'
 
 test('get order with correct id should receive code 200', async ({ request }) => {
   // Build and send a GET request to the server
@@ -42,7 +41,7 @@ test('post order with correct data should receive code 201', async ({ request })
 test('post order with missing fields should return 400', async ({ request }) => {
   const requestBody = {
     status: 'OPEN', // Väli olemas
-    courierId: 0,   // Väli olemas
+    courierId: 0, // Väli olemas
     // Puudu: customerName, customerPhone, comment, id
   }
   const response = await request.post('https://backend.tallinn-learning.ee/test-orders', {
@@ -84,8 +83,6 @@ test('post order with invalid values should return 400', async ({ request }) => 
   expect(response.status()).toBe(400)
 })
 
-
-
 test('get invalid order ID should return 400', async ({ request }) => {
   const response = await request.get('https://backend.tallinn-learning.ee/test-orders/9999')
   console.log('response status:', response.status())
@@ -97,5 +94,3 @@ test('get non-existent order should return 400', async ({ request }) => {
   console.log('response status (non-existent ID):', response.status())
   expect(response.status()).toBe(400) // Kontrollime serveri käitumist
 })
-
-

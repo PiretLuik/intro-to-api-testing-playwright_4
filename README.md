@@ -21,18 +21,18 @@ The goal of the tests is to ensure API stability, expected functionality, and ad
 
 ### POST Requests
 
-| Test Name                    | Endpoint       | Expected Response |
-| ---------------------------- | -------------- | ----------------- |
-| Valid data                   | `/test-orders` | `201 Created`     |
-| Invalid data                 | `/test-orders` | `400 Bad Request` |
-| Unexpected fields            | `/test-orders` | `200 OK`          |
-| Valid data with headers      | `/test-orders` | `201 Created`     |
+| Test Name               | Endpoint       | Expected Response |
+| ----------------------- | -------------- | ----------------- |
+| Valid data              | `/test-orders` | `201 Created`     |
+| Invalid data            | `/test-orders` | `400 Bad Request` |
+| Unexpected fields       | `/test-orders` | `200 OK`          |
+| Valid data with headers | `/test-orders` | `201 Created`     |
 
 ### JSON Schema Validation
 
-| Test Name                            | Endpoint       | Expected Behavior                          |
-| ------------------------------------ | -------------- | ------------------------------------------ |
-| Validate API response with schema    | `/test-orders` | Ensures API response matches JSON schema   |
+| Test Name                         | Endpoint       | Expected Behavior                        |
+| --------------------------------- | -------------- | ---------------------------------------- |
+| Validate API response with schema | `/test-orders` | Ensures API response matches JSON schema |
 
 ---
 
@@ -53,4 +53,3 @@ The goal of the tests is to ensure API stability, expected functionality, and ad
 1. Ensure Node.js is installed.
 2. Install dependencies:
    npm install
-

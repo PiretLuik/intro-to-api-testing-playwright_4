@@ -32,8 +32,8 @@ test.describe('Simple solution API tests', () => {
   })
 
   test('post order with correct data should receive code 200 - process full body', async ({
-                                                                                            request,
-                                                                                          }) => {
+    request,
+  }) => {
     // prepare request body with dto pattern
     const requestBody = OrderDto.createOrderWithRandomData()
     const response = await request.post(serviceURL, {
@@ -108,19 +108,19 @@ test.describe('Simple solution API tests', () => {
     // Kontrollime päiseid (kui server vastab päistega)
     expect(response.headers()['content-type']).toContain('application/json')
   })
-// Test: GET with invalid order ID
+  // Test: GET with invalid order ID
   test('get invalid order ID should return 400', async ({ request }) => {
-    const response = await request.get('https://backend.tallinn-learning.ee/test-orders/9999');
-    console.log('Response status:', response.status());
-    expect(response.status()).toBe(StatusCodes.BAD_REQUEST); // Expect 400
-  });
+    const response = await request.get('https://backend.tallinn-learning.ee/test-orders/9999')
+    console.log('Response status:', response.status())
+    expect(response.status()).toBe(StatusCodes.BAD_REQUEST) // Expect 400
+  })
 
-// Test: GET non-existent order
+  // Test: GET non-existent order
   test('get non-existent order should return 400', async ({ request }) => {
-    const response = await request.get('https://backend.tallinn-learning.ee/test-orders/1000000');
-    console.log('Response status (non-existent ID):', response.status());
-    expect(response.status()).toBe(StatusCodes.BAD_REQUEST); // Expect 400
-  });
+    const response = await request.get('https://backend.tallinn-learning.ee/test-orders/1000000')
+    console.log('Response status (non-existent ID):', response.status())
+    expect(response.status()).toBe(StatusCodes.BAD_REQUEST) // Expect 400
+  })
 
   function validateResponseBody(responseBody: OrderDto): void {
     expect.soft(responseBody.status).toBeDefined()
@@ -131,4 +131,3 @@ test.describe('Simple solution API tests', () => {
     expect.soft(String(responseBody.id)).toMatch(/\d+/)
   }
 })
-
