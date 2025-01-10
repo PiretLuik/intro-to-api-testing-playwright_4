@@ -24,9 +24,16 @@ export default [
       '@typescript-eslint/no-unused-expressions': 'error',
       '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/explicit-function-return-type': 'warn',
+      '@typescript-eslint/explicit-function-return-type': [
+        'warn',
+        {
+          allowExpressions: true,
+          allowTypedFunctionExpressions: true,
+        },
+      ],
       'no-undef': 'error',
       'no-unreachable': 'error',
     },
   },
 ]
+
