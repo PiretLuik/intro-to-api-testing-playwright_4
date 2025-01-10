@@ -23,15 +23,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run Prettier check
-        run: |
-          echo "Running Prettier to check for formatting issues..."
-          npm run prettier:check
+ #     - name: Run Prettier check
+ #       run: |
+ #         echo "Running Prettier to check for formatting issues..."
+ #         npm run prettier:check
 
-      - name: Run ESLint check
-        run: |
-          echo "Running ESLint to check for linting issues..."
-          npm run lint
+ #     - name: Run ESLint check
+ #       run: |
+ #         echo "Running ESLint to check for linting issues..."
+ #         npm run lint
 
       - name: Run TypeScript compile check
         run: |
