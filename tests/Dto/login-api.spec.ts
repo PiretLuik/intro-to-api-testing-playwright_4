@@ -1,55 +1,75 @@
-import { expect, test } from '@playwright/test'
-import { LoginDto } from './login-dto'
-import { StatusCodes } from 'http-status-codes'
+import { expect, test } from '@playwright/test';
+import { LoginDto } from './login-dto';
+import { StatusCodes } from 'http-status-codes';
 
-const serviceURL = 'https://backend.tallinn-learning.ee/'
-const loginPath = 'login/student'
-const jwtFormat = /^eyJhb[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/ // JWT formaadi regex
+const serviceURL = 'https://backend.tallinn-learning.ee/';
+const loginPath = 'login/student';
+const jwtFormat = /^eyJhb[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/; // JWT regex
 
 test.describe('Tallinn delivery API tests', () => {
-  test('login with correct data', async ({ request }) => {
-    const requestBody = LoginDto.createLoginWithCorrectData()
+  test('login with correct data and validate JWT', async ({ request }) => {
+    const requestBody = LoginDto.createLoginWithCorrectData();
 
     const response = await request.post(`${serviceURL}${loginPath}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
       data: requestBody,
-    })
+    });
 
-    const responseBody = await response.text()
-    console.log('Response body:', responseBody)
+    console.log('Response status:', response.status());
+    const responseBody = await response.text();
+    console.log('Response body:', responseBody);
 
-    // Kontrollime vastuse staatust ja JWT formaati
-    expect(response.status()).toBe(StatusCodes.OK)
-    expect(responseBody).toMatch(jwtFormat)
-  })
+    // Kontrollime vastuse staatust
+    expect(response.status(), 'Expected HTTP status 200').toBe(StatusCodes.OK);
 
-  test('login with incorrect data', async ({ request }) => {
-    const requestBody = LoginDto.createLoginWithIncorrectData()
+    // Kontrollime JWT tokeni formaati
+    expect(responseBody, 'Expected response body to match JWT format').toMatch(jwtFormat);
+
+    // Kontrollime tokeni aegumisaega
+    const tokenParts = responseBody.split('.');
+    const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
+    expect(payload.exp, 'Expected token to have expiration time').toBeGreaterThan(Date.now() / 1000);
+    expect(payload.sub, 'Expected token subject to match username').toBe(process.env.USER);
+  });
+
+  test('login with incorrect data should fail', async ({ request }) => {
+    const requestBody = LoginDto.createLoginWithIncorrectData();
 
     const response = await request.post(`${serviceURL}${loginPath}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
       data: requestBody,
-    })
+    });
 
-    const responseBody = await response.text()
-    console.log('Response body:', responseBody)
+    console.log('Response status:', response.status());
+    const responseBody = await response.text();
+    console.log('Response body:', responseBody);
 
     // Kontrollime vastuse staatust ja tühja keha
-    expect(response.status()).toBe(StatusCodes.UNAUTHORIZED)
-    expect(responseBody).toBe('')
-  })
+    expect(response.status(), 'Expected HTTP status 401').toBe(StatusCodes.UNAUTHORIZED);
+    expect(responseBody, 'Expected response body to be empty').toBe('');
+  });
 
-  test('login with any incorrect HTTP method', async ({ request }) => {
-    const requestBody = LoginDto.createLoginWithCorrectData()
+  test('login with incorrect HTTP method', async ({ request }) => {
+    const requestBody = LoginDto.createLoginWithCorrectData();
 
     const response = await request.put(`${serviceURL}${loginPath}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
       data: requestBody,
-    })
+    });
 
-    const responseBody = await response.json()
-    console.log('Response body:', responseBody)
+    console.log('Response status:', response.status());
+    const responseBody = await response.json();
+    console.log('Response body:', responseBody);
 
-    // Kontrollime vastuse staatust ja veateadet
-    expect(response.status()).toBe(StatusCodes.METHOD_NOT_ALLOWED)
-    expect.soft(responseBody).toHaveProperty('error', 'Method Not Allowed')
-    expect.soft(responseBody).toHaveProperty('status', 405)
-  })
-})
+    // Kontrollime veateadet ja staatust
+    expect(response.status(), 'Expected HTTP status 405').toBe(StatusCodes.METHOD_NOT_ALLOWED);
+    expect(responseBody, 'Expected response body to have error property').toHaveProperty('error', 'Method Not Allowed');
+    expect(responseBody, 'Expected response body to have status property').toHaveProperty('status', 405);
+  });
+});
