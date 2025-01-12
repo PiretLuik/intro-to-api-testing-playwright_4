@@ -2,7 +2,9 @@ name: Check formatting, linting, and run tests
 
 on:
   push:
-    branches: [main, develop]
+    branches:
+      - main
+      - develop
   pull_request:
     branches:
       - main
@@ -12,39 +14,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Koodi kontrollimiseks reposti avamine
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Node.js keskkonna seadistamine
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      # 3. Vajalike sõltuvuste installimine
       - name: Install dependencies
         run: npm install
 
-      # 4. Prettieri kontroll (valikuline, kommenteeri välja kui ei vaja)
       - name: Run Prettier check
         run: |
           echo "Running Prettier to check for formatting issues..."
           npm run prettier:check
 
-   #   # 5. ESLint kontroll (valikuline, kommenteeri välja kui ei vaja)
-   #   - name: Run ESLint check
-   #     run: |
-          echo "Running ESLint to check for linting issues..."
-          npm run lint
+      # - name: Run ESLint check
+      #   run: |
+      #     echo "Running ESLint to check for linting issues..."
+      #     npm run lint
 
-      # 6. TypeScripti kompileerimise kontroll
       - name: Run TypeScript compile check
         run: |
           echo "Running TypeScript compiler to check for type issues..."
           npx tsc --noEmit
 
-      # 7. Playwright API testide käivitamine
       - name: Run Playwright API tests
         env:
           USER: ${{ secrets.USER }}
