@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
-import { LoginDto } from './login-dto';
-import { OrderDto } from './order-dto';
+import { LoginDto } from './login-dto'
+import { OrderDto } from './order-dto'
 import { StatusCodes } from 'http-status-codes'
 
 const BaseUrl = 'https://backend.tallinn-learning.ee'
@@ -90,4 +90,3 @@ test('login and delete order without api client', async ({ request }) => {
 
   expect(deletedOrder).toBeTruthy()
 })
-
