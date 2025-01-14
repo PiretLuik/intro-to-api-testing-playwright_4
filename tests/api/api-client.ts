@@ -1,77 +1,91 @@
-import { APIRequestContext } from 'playwright';
-import { LoginDto } from '../dto/login-dto';
-import { OrderDto } from '../dto/order-dto';
-import { StatusCodes } from 'http-status-codes';
+import { APIRequestContext } from 'playwright'
+import { LoginDto } from '../dto/login-dto'
+import { StatusCodes } from 'http-status-codes'
+import { expect } from '@playwright/test'
+import { OrderDto } from '../dto/order-dto'
 
-const BASE_URL = 'https://backend.tallinn-learning.ee/';
-const LOGIN_ENDPOINT = 'login/student';
-const ORDER_ENDPOINT = 'orders';
+const serviceURL = 'https://backend.tallinn-learning.ee/'
+const loginPath = 'login/student'
+const orderPath = 'orders'
 
 export class ApiClient {
-  private static instance: ApiClient;
-  private request: APIRequestContext;
-  private jwt: string = '';
+  static instance: ApiClient
+  private request: APIRequestContext
+  private jwt: string = ''
 
   private constructor(request: APIRequestContext) {
-    this.request = request;
+    this.request = request
   }
 
   public static async getInstance(request: APIRequestContext): Promise<ApiClient> {
     if (!ApiClient.instance) {
-      ApiClient.instance = new ApiClient(request);
-      await ApiClient.instance.authenticate();
+      ApiClient.instance = new ApiClient(request)
+      await this.instance.requestJwt()
     }
-    return ApiClient.instance;
+    return ApiClient.instance
   }
 
-  private async authenticate(): Promise<void> {
-    const response = await this.request.post(`${BASE_URL}${LOGIN_ENDPOINT}`, {
+  private async requestJwt(): Promise<void> {
+    console.log('Requesting JWT...')
+    const authResponse = await this.request.post(`${serviceURL}${loginPath}`, {
       data: LoginDto.createLoginWithCorrectData(),
-    });
-
-    if (response.status() !== StatusCodes.OK) {
-      throw new Error(`Login failed with status ${response.status()}`);
+    })
+    // Check response status for negative cases
+    if (authResponse.status() !== StatusCodes.OK) {
+      console.log('Authorization failed')
+      throw new Error(`Request failed with status ${authResponse.status()}`)
     }
 
-    this.jwt = await response.text();
+    // Save the JWT token as a client property
+    this.jwt = await authResponse.text()
+    console.log('jwt received:')
+    console.log(this.jwt)
   }
 
-  public async createOrder(): Promise<number> {
-    const response = await this.request.post(`${BASE_URL}${ORDER_ENDPOINT}`, {
-      headers: { Authorization: `Bearer ${this.jwt}` },
+  async createOrderAndReturnOrderId(): Promise<number> {
+    console.log('Creating order...')
+    const response = await this.request.post(`${serviceURL}${orderPath}`, {
       data: OrderDto.createOrderWithRandomData(),
-    });
+      headers: {
+        Authorization: `Bearer ${this.jwt}`,
+      },
+    })
+    console.log('POST: Order response: ', response)
 
-    if (response.status() !== StatusCodes.OK) {
-      throw new Error(`Order creation failed with status ${response.status()}`);
-    }
+    expect(response.status()).toBe(StatusCodes.OK) // code 200
+    const responseBody = await response.json()
+    console.log('Order created: ')
+    console.log(responseBody)
 
-    const responseBody = await response.json();
-    return responseBody.id;
+    return responseBody.id
   }
 
-  public async getOrder(orderId: number): Promise<void> {
-    const response = await this.request.get(`${BASE_URL}${ORDER_ENDPOINT}/${orderId}`, {
-      headers: { Authorization: `Bearer ${this.jwt}` },
-    });
+  async getOrderById(orderId: number): Promise<void> {
+    console.log(`Fetching order with ID ${orderId}...`)
+    const response = await this.request.get(`${serviceURL}${orderPath}/${orderId}`, {
+      headers: {
+        Authorization: `Bearer ${this.jwt}`,
+      },
+    })
 
-    if (response.status() !== StatusCodes.OK) {
-      throw new Error(`Failed to fetch order with status ${response.status()}`);
-    }
+    console.log('GET: Order response: ', response)
 
-    const responseBody = await response.json();
-    if (responseBody.id !== orderId) {
-      throw new Error(`Order ID mismatch: expected ${orderId}, got ${responseBody.id}`);
-    }
+    expect(response.status()).toBe(StatusCodes.OK) //code 200
+    const responseBody = await response.json()
+    console.log(responseBody)
+    expect(responseBody.id).toBe(orderId)
   }
 
-  public async deleteOrder(orderId: number): Promise<void> {
-    const response = await this.request.delete(`${BASE_URL}${ORDER_ENDPOINT}/${orderId}`, {
-      headers: { Authorization: `Bearer ${this.jwt}` },
-    });
+  async deleteOrderById(orderId: number): Promise<void> {
+    console.log(`Deleting order with ID ${orderId}...`)
+    const response = await this.request.delete(`${serviceURL}${orderPath}/${orderId}`, {
+      headers: {
+        Authorization: `Bearer ${this.jwt}`,
+      },
+    })
 
-    if (response.status() !== StatusCodes.OK) {
-      throw new Error(`Failed to delete order with status ${response.status()}`);
-    }
+    console.log('DELETE: Order response: ', response)
+    expect(response.status()).toBe(StatusCodes.OK) // code 200
+    expect(response.json()).toBeTruthy()
   }
 }

@@ -6,31 +6,20 @@ dotenv.config();
 
 export default defineConfig({
   testDir: './tests',
-  /* Run tests in files in parallel */
   fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
   retries: process.env.CI ? 2 : 1,
-  /* Number of workers to use for testing */
   workers: process.env.CI ? 1 : 2,
-  /* HTML reporter for visual output */
   reporter: [
-    ['html', { open: 'never' }], // "always", "on-failure", "never"
-    ['list'], // Lisatud list formaadis logi
+    ['html', { open: 'never' }],
+    ['list'],
   ],
   use: {
-    /* Enable tracing on every run */
-    trace: 'on', // "on", "retain-on-failure", "on-first-retry"
-    /* Take a screenshot on failure */
-    screenshot: 'only-on-failure', // "on", "off", "only-on-failure"
-    /* Record a video on failure */
-    video: 'retain-on-failure', // "on", "retain-on-failure", "off"
-    /* Set base URL for tests if needed */
+    trace: 'retain-on-failure', // Trace-failid luuakse ainult rikete korral
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
     baseURL: process.env.BASE_URL || 'https://backend.tallinn-learning.ee/',
-    /* Set headless mode */
-    headless: true, // Võid muuta false, kui vaja GUI-d näha
-    /* Common HTTP headers */
+    headless: true,
     extraHTTPHeaders: {
       'Content-Type': 'application/json',
     },
@@ -39,27 +28,31 @@ export default defineConfig({
     {
       name: 'API tests',
       use: {
-        // Eraldi seaded API testidele
         baseURL: process.env.BASE_URL || 'https://backend.tallinn-learning.ee/',
         extraHTTPHeaders: {
           'Content-Type': 'application/json',
         },
+        trace: 'on', // Trace-failid luuakse alati
       },
     },
     {
       name: 'Mobile tests',
       use: {
-        ...devices['Pixel 5'], // Lisame mobiilse seadme seadistuse
+        ...devices['Pixel 5'],
         headless: true,
+        trace: 'retain-on-failure',
       },
     },
     {
       name: 'Desktop Chrome',
       use: {
-        ...devices['Desktop Chrome'], // Chrome'i kasutamine
+        ...devices['Desktop Chrome'],
         headless: false,
+        trace: 'retain-on-failure',
       },
     },
   ],
+  outputDir: './test-results', // Kõik tulemused salvestatakse siia kausta
 });
+
 

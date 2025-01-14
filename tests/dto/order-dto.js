@@ -16,15 +16,14 @@ class OrderDto {
     this.comment = comment
     this.id = id
   }
-  // Lisatud tagastus: OrderDto klassi eraldi täpsustatud kui tagastustüüp
   static createOrderWithRandomData() {
     return new OrderDto(
-      'OPEN', // Staatiline tellimuse staatus
-      Math.floor(Math.random() * 100), // Juhuslik kulleri ID
-      'John Doe', // Juhuslik klient
-      '+123456789', // Telefoni number
-      'Urgent order', // Tellimuse kommentaar
-      Math.floor(Math.random() * 100), // Juhuslik tellimuse ID
+      'OPEN',
+      Math.floor(Math.random() * 100),
+      'John Doe',
+      '+123456789',
+      'Urgent order',
+      Math.floor(Math.random() * 100),
     )
   }
 }

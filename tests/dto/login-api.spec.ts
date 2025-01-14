@@ -21,13 +21,10 @@ test.describe('Tallinn delivery API tests', () => {
     const responseBody = await response.text()
     console.log('Response body:', responseBody)
 
-    // Kontrollime vastuse staatust
     expect(response.status(), 'Expected HTTP status 200').toBe(StatusCodes.OK)
 
-    // Kontrollime JWT tokeni formaati
     expect(responseBody, 'Expected response body to match JWT format').toMatch(jwtFormat)
 
-    // Kontrollime tokeni aegumisaega
     const tokenParts = responseBody.split('.')
     const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString())
     expect(payload.exp, 'Expected token to have expiration time').toBeGreaterThan(Date.now() / 1000)
@@ -48,7 +45,6 @@ test.describe('Tallinn delivery API tests', () => {
     const responseBody = await response.text()
     console.log('Response body:', responseBody)
 
-    // Kontrollime vastuse staatust ja tühja keha
     expect(response.status(), 'Expected HTTP status 401').toBe(StatusCodes.UNAUTHORIZED)
     expect(responseBody, 'Expected response body to be empty').toBe('')
   })
@@ -67,7 +63,6 @@ test.describe('Tallinn delivery API tests', () => {
     const responseBody = await response.json()
     console.log('Response body:', responseBody)
 
-    // Kontrollime veateadet ja staatust
     expect(response.status(), 'Expected HTTP status 405').toBe(StatusCodes.METHOD_NOT_ALLOWED)
     expect(responseBody, 'Expected response body to have error property').toHaveProperty(
       'error',

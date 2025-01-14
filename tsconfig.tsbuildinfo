@@ -1,0 +1,1 @@
+{"root":["./playwright.config.ts","./tests/lesson9-tests.spec.ts","./tests/simple-solution-api.spec.ts","./tests/api/api-client.ts","./tests/dto/auth-order-with-api-client.spec.ts","./tests/dto/auth-order-without-api-client.spec.ts","./tests/dto/login-api.spec.ts","./tests/dto/login-dto.ts","./tests/dto/order-dto.tests.ts","./tests/dto/order-dto.ts"],"version":"5.7.2"}
